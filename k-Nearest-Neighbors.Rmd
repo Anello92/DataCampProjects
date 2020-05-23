@@ -1,0 +1,123 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+# Classification with nearest neighbors - Supervised Learning in R: Classification
+    # k is a variable that specifies the NUMBER OF NEIGHBORS TO CONSIDER when making the classification;
+        # determining the size of the neighborhoods, R uses the default value of '1'.
+            # the dafult 1 means that only the single nearest, most similar, neighbor is used to classify
+                # kNN can identify more subtle patterns in the data
+
+# the value of k have a substantial impact on the performance of our classifier. Rhere is no universal rule. 
+
+# the OPTIMAL VALUE depends on the complexity of the pattern to be learned, as well as the impact of noisy data.
+    # some suggest a rule of thumb starting with k = sqrt(number of observations in the training data)
+
+# If the car observes 100 previous road signs, we might set k to 10. 
+    # An even better approach is to test several differente values of k and compare the  performance on data not seen before. 
+----------------------------------------------------------------------------------------------------------------------------------
+
+# Machine learning utilizes computers to turn data into insight and action. We will focus on a subset of machine learning.
+
+# Supervised learning focuses on training a machine to learn from prior examples. 
+
+# When the concept to be learned is a SET OF CATEGORIES, the taks is called classification. 
+  # - identifying diseases
+  # - predicting the weather
+  # - wheter an image contains a dog
+  # - a vehicles's camera observes an object, it must classify the object before it can react. 
+
+# We can simulate the algorithms behavior that govern autonomous cars
+    # Using machine learning to classify the sign's type;
+        # To start training a self-driving car, we might supervise it by demonstrating the desired behavior.
+            # After some time under instruction, the vehicle has built a database that records the sign as the TARGET BEHAVIOR.
+
+
+# A nearest neighbor classifier takes advantage of the fact that signs that look alike should be similar to, or nearby other signs. 
+# By imagining the color as a 3-dimensional feature space measuring levels of red, greend, and blue, signs of similar color.   
+# Many nearest neighbor learners use the Euclidean distance formula, which measures the straight-line distance between two points. 
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+# Applying nearest neighbors in R: algorithm k-Nearest Neighbors kNN
+
+# Load the 'class' package
+library(class)
+
+# Create a vector of labels
+sign_types <- c(signs$sign_type)
+
+# Classify the next sign observed
+knn(train = signs[-1], test = next_sign, cl = sign_types)
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+# Examine the structure of the signs dataset
+str(signs)
+
+# Count the number of signs of each type.
+table(signs$sign_type)
+
+pedestrian      speed       stop 
+        46         49         51
+
+# Check r10's average red level by sign type
+aggregate(r10 ~ sign_type, data = signs, mean)
+
+   sign_type       r10
+1 pedestrian 113.71739
+2      speed  80.63265
+3       stop 132.39216
+ 
+----------------------------------------------------------------------------------------------------------------------------------
+
+# Use kNN to identify the test road signs
+sign_types <- signs$sign_type
+signs_pred <- knn(train = signs[-1], test = test_signs[-1], cl = sign_types)
+
+# Create a confusion matrix of the predicted versus actual values
+signs_actual <- test_signs$sign_type
+table(signs_pred, signs_actual)
+
+            signs_actual
+signs_pred   pedestrian speed stop
+  pedestrian         19     2    0
+  speed               0    17    0
+  stop                0     2   19
+
+# Compute the accuracy
+mean(signs_pred == signs_actual)
+[1] 0.9322034
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+# Testing other 'k' values
+
+# Compute the accuracy of the baseline model (default k = 1)
+k_1 <- knn(train = signs[-1], test = signs_test[-1], cl = sign_types, k = 1)
+mean(signs_actual == k_1)
+
+# Modify the above to set k = 7
+k_7 <- knn(train = signs[-1], test = signs_test[-1], cl = sign_types, k = 7)
+mean(signs_actual == k_7)
+
+# Set k = 15 and compare to the above
+k_15 <- knn(train = signs[-1], test = signs_test[-1], cl = sign_types, k = 15)
+mean(signs_actual == k_15)
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+#Seeing how the neighbors voted
+
+# Use the prob parameter to get the proportion of votes for the winning class
+sign_pred <- knn(train = signs[-1], test = signs_test[-1], cl = sign_types, k = 7, prob = TRUE)
+
+# Get the "prob" attribute from the predicted classes
+sign_prob <- attr(sign_pred, "prob")
+
+# Examine the first several predictions
+head(sign_pred)
+
+# Examine the proportion of votes for the winning class
+head(sign_prob)
