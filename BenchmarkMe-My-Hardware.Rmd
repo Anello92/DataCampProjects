@@ -3,8 +3,7 @@ title: "R Notebook"
 output: html_notebook
 ---
 
-# Writing Efficient R Code - only optimize when necessary
-    # keep R up-to-date
+# Writing Efficient R Code 
     
 install.packages("benchmarkme")
 library("benchmarkme")
@@ -14,7 +13,7 @@ library("benchmarkme")
 res <- benchmark_std(runs = 3)
 plot(res)
 
-
+-----------------------------------------------------------------------------------------------------------------------------
 
 # R has the reputation for being slow. Thinking, coding and running.
     # In many statistical analyses, we may try multiple methods. 
@@ -25,6 +24,7 @@ plot(dataset$x, dataset$y) #plot
 lm(y~x, data = data_set) #linear model
 
 -----------------------------------------------------------------------------------------------------------------------------
+
 # R version 
 
 # Print the R version details using version
